@@ -1,4 +1,4 @@
-module github.com/projectdiscovery/dsl
+module github.com/ZuoqTr/dsl
 
 go 1.24.0
 

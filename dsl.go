@@ -58,6 +58,8 @@ import (
 	"github.com/spaolacci/murmur3"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"os"
+	"io"
 )
 
 var (
@@ -1560,8 +1562,22 @@ func init() {
 		}),
 	)
 
+	MustAddFunction(NewWithPositionalArgs("read_stdin", 0, false, func(args ...interface{}) (interface{}, error) {
+		stat, _ := os.Stdin.Stat()
+		if (stat.Mode() & os.ModeCharDevice) != 0 {
+			return nil, errkit.New("stdin is not being piped")
+		}
+
+		bytes, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return nil, errkit.Wrap(err, "could not read from stdin")
+		}
+		return string(bytes), nil
+	}))
+
 	DefaultHelperFunctions = HelperFunctions()
 	FunctionNames = GetFunctionNames(DefaultHelperFunctions)
+	
 }
 
 // Helper function to generate function signatures for faker functions
